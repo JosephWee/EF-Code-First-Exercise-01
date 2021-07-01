@@ -1,0 +1,14 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs
+/packages
+/DomainModel/obj
+/DomainModel/bin
+/DomainModelTest/obj
+/DomainModelTest/bin
+*.log
+*.user
+connectionStrings.config
+log4net.config
