@@ -8,5 +8,7 @@
 /*/bin
 *.log
 *.user
-connectionStrings.config
-log4net.config
+connectionString*.config
+appSetting*.config
+smtp*.config
+log4net*.config
