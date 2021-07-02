@@ -4,10 +4,8 @@
 
 /.vs
 /packages
-/DomainModel/obj
-/DomainModel/bin
-/DomainModelTest/obj
-/DomainModelTest/bin
+/*/obj
+/*/bin
 *.log
 *.user
 connectionStrings.config
