@@ -10,6 +10,11 @@ namespace DomainModel.Entities
 {
     public class VehicleMake
     {
+        public VehicleMake()
+        {
+            MotorVehicleModels = new List<MotorVehicleModel>();
+        }
+
         public Guid VehicleMakeId { get; set; }
 
         [Required]
@@ -17,6 +22,6 @@ namespace DomainModel.Entities
         [MaxLength(50)]
         public string Name { get; set; }
 
-        public ICollection<MotorVehicleModel> MotorVehicleModels { get; set; }
+        public virtual ICollection<MotorVehicleModel> MotorVehicleModels { get; protected set; }
     }
 }

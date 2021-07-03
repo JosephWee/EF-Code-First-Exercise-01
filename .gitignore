@@ -7,8 +7,9 @@
 /*/obj
 /*/bin
 *.log
+*.log.*
 *.user
 connectionString*.config
 appSetting*.config
 smtp*.config
-log4net*.config
+#log4net*.config

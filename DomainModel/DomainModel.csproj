@@ -80,9 +80,10 @@
     <Compile Include="Entities\Location.cs" />
     <Compile Include="Entities\VehicleMake.cs" />
     <Compile Include="Entities\MotorVehicleModel.cs" />
-    <Compile Include="Migrations\202107011628566_InitDB.cs" />
-    <Compile Include="Migrations\202107011628566_InitDB.designer.cs">
-      <DependentUpon>202107011628566_InitDB.cs</DependentUpon>
+    <Compile Include="Extension.cs" />
+    <Compile Include="Migrations\202107030906410_InitDB.cs" />
+    <Compile Include="Migrations\202107030906410_InitDB.designer.cs">
+      <DependentUpon>202107030906410_InitDB.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="VehicleRentalContext.cs" />
@@ -114,8 +115,8 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\202107011628566_InitDB.resx">
-      <DependentUpon>202107011628566_InitDB.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\202107030906410_InitDB.resx">
+      <DependentUpon>202107030906410_InitDB.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

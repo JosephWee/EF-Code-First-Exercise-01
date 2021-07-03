@@ -10,15 +10,20 @@ namespace DomainModel.Entities
 {
     public class Suburb
     {
+        public Suburb()
+        {
+            Addresses = new List<Address>();
+        }
+
         public Guid SuburbId { get; set; }
 
-        [Required]
-        public virtual City City { get; set; }
+        public Guid CityId { get; set; }
+        public virtual City City { get; protected set; }
 
         [Required]
         [MaxLength(50)]
         public string Name { get; set; }
 
-        public ICollection<Address> Addresses { get; set; }
+        public virtual ICollection<Address> Addresses { get; protected set; }
     }
 }

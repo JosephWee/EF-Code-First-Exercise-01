@@ -17,6 +17,10 @@ namespace DomainModel
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Ent.MotorVehicle>()
+                .Property(mv => mv.LocationId)
+                .IsOptional();
+
             //modelBuilder.Entity<Ent.MotorVehicle>()
             //    .HasRequired<Ent.MotorVehicleModel>(mv => mv.MotorVehicleModel)
             //    .WithMany()

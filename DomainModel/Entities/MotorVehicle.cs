@@ -25,8 +25,8 @@ namespace DomainModel.Entities
             }
         }
 
-        [Required]
-        public virtual MotorVehicleModel MotorVehicleModel { get; set; }
+        public Guid MotorVehicleModelId { get; set; }
+        public virtual MotorVehicleModel MotorVehicleModel { get; protected set; }
 
         [Required]
         [Index]
@@ -103,6 +103,7 @@ namespace DomainModel.Entities
             }
         }
 
-        public virtual Location Location { get; set; }
+        public Guid LocationId { get; set; }
+        public virtual Location Location { get; protected set; }
     }
 }

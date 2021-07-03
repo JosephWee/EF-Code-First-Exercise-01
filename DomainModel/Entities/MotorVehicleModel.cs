@@ -10,10 +10,15 @@ namespace DomainModel.Entities
 {
     public class MotorVehicleModel
     {
+        public MotorVehicleModel()
+        {
+            MotorVehicles = new List<MotorVehicle>();
+        }
+
         public Guid MotorVehicleModelId { get; set; }
 
-        [Required]
-        public virtual VehicleMake VehicleMake { get; set; }
+        public Guid VehicleMakeId { get; set; }
+        public virtual VehicleMake VehicleMake { get; protected set; }
 
         [Required]
         [MaxLength(50)]
@@ -58,6 +63,6 @@ namespace DomainModel.Entities
         [Range(0, int.MaxValue)]
         public int CargoVolume { get; set; }
 
-        public ICollection<MotorVehicle> MotorVehicles { get; set; }
+        public virtual ICollection<MotorVehicle> MotorVehicles { get; protected set; }
     }
 }

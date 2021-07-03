@@ -10,11 +10,16 @@ namespace DomainModel.Entities
 {
     public class Country
     {
+        public Country()
+        {
+            States = new List<State>();
+        }
+
         public Guid CountryId { get; set; }
 
         [MaxLength(50)]
         public string Name { get; set; }
 
-        public ICollection<State> States { get; set; }
+        public virtual ICollection<State> States { get; protected set; }
     }
 }

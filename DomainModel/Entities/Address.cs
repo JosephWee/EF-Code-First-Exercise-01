@@ -24,6 +24,9 @@ namespace DomainModel.Entities
         {
             get
             {
+                if (State == null)
+                    return null;
+
                 return State.Country;
             }
         }
@@ -33,6 +36,9 @@ namespace DomainModel.Entities
         {
             get
             {
+                if (City == null)
+                    return null;
+
                 return City.State;
             }
         }
@@ -42,12 +48,15 @@ namespace DomainModel.Entities
         {
             get
             {
+                if (Suburb == null)
+                    return null;
+
                 return Suburb.City;
             }
         }
 
-        [Required]
-        public virtual Suburb Suburb { get; set; }
+        public Guid SuburbId { get; set; }
+        public virtual Suburb Suburb { get; protected set; }
 
         [Required]
         public string PostalCode { get; set; }
