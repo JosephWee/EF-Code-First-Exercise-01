@@ -103,7 +103,7 @@ namespace DomainModel.Entities
             }
         }
 
-        public Guid LocationId { get; set; }
+        public Guid? LocationId { get; set; }
         public virtual Location Location { get; protected set; }
     }
 }
