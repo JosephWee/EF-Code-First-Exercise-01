@@ -12,7 +12,7 @@ namespace DomainModel.Entities
     {
         public Location()
         {
-            //Fleet = new List<MotorVehicle>();
+            Fleet = new List<MotorVehicle>();
         }
 
         public Guid LocationId { get; set; }
@@ -21,9 +21,8 @@ namespace DomainModel.Entities
         [MaxLength(50)]
         public string Name { get; set; }
 
-        [Required]
         public Guid AddressId { get; set; }
-        public virtual Address Address { get; set; }
+        public virtual Address Address { get; protected set; }
 
         [Range(0, int.MaxValue)]
         public int ParkingCapacity { get; set; }

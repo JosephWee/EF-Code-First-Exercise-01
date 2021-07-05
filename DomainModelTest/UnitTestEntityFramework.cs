@@ -14,88 +14,103 @@ namespace DomainModelTest
             log4net.LogManager.GetLogger
             (System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        private VehicleRentalContext context = null;
-
         [TestInitialize]
         public void TestInitialize()
         {
-            context = new VehicleRentalContext();
-            context.Database.Log = msg => log.Debug(msg);
         }
 
         [TestMethod]
-        public void TestPopulateDB()
+        public void _EmptyDB()
         {
-            VehicleRentalContextHelper.PopulateDatabase(context);
-            context.SaveChanges();
+            var context = new VehicleRentalContext();
 
-            Assert.IsTrue(context.Countries.Count() == 1);
-            Assert.IsTrue(context.States.Count() > 0);
-            Assert.IsTrue(context.Cities.Count() > 0);
-            Assert.IsTrue(context.Suburbs.Count() > 0);
-            Assert.IsTrue(context.Addresses.Count() > 0);
-            Assert.IsTrue(context.Locations.Count() > 0);
-
-            Assert.IsTrue(context.VehicleMakes.Count() == 2);
-            Assert.IsTrue(context.MotorVehicleModels.Count() == 22);
             Assert.IsTrue(context.MotorVehicles.Count() > 0);
+            Assert.IsTrue(context.MotorVehicleModels.Count() > 0);
+            Assert.IsTrue(context.VehicleMakes.Count() > 0);
+
+            Assert.IsTrue(context.Locations.Count() > 0);
+            Assert.IsTrue(context.Addresses.Count() > 0);
+            Assert.IsTrue(context.Suburbs.Count() > 0);
+            Assert.IsTrue(context.Cities.Count() > 0);
+            Assert.IsTrue(context.States.Count() > 0);
+            Assert.IsTrue(context.Countries.Count() > 0);
+            
+            VehicleRentalContextHelper.EmptyDatabase(log);
+
+            Assert.IsTrue(context.MotorVehicles.Count() == 0);
+            Assert.IsTrue(context.MotorVehicleModels.Count() == 0);
+            Assert.IsTrue(context.VehicleMakes.Count() == 0);
+
+            Assert.IsTrue(context.Locations.Count() == 0);
+            Assert.IsTrue(context.Addresses.Count() == 0);
+            Assert.IsTrue(context.Suburbs.Count() == 0);
+            Assert.IsTrue(context.Cities.Count() == 0);
+            Assert.IsTrue(context.States.Count() == 0);
+            Assert.IsTrue(context.Countries.Count() == 0);
+        }
+
+        [TestMethod]
+        public void _PopulateDB()
+        {
+            var context = new VehicleRentalContext();
+
+            Assert.IsTrue(context.MotorVehicles.Count() == 0);
+            Assert.IsTrue(context.MotorVehicleModels.Count() == 0);
+            Assert.IsTrue(context.VehicleMakes.Count() == 0);
+
+            Assert.IsTrue(context.Locations.Count() == 0);
+            Assert.IsTrue(context.Addresses.Count() == 0);
+            Assert.IsTrue(context.Suburbs.Count() == 0);
+            Assert.IsTrue(context.Cities.Count() == 0);
+            Assert.IsTrue(context.States.Count() == 0);
+            Assert.IsTrue(context.Countries.Count() == 0);
+
+            VehicleRentalContextHelper.PopulateDatabase(log);
+
+            Assert.IsTrue(context.MotorVehicles.Count() > 0);
+            Assert.IsTrue(context.MotorVehicleModels.Count() > 0);
+            Assert.IsTrue(context.VehicleMakes.Count() > 0);
+
+            Assert.IsTrue(context.Locations.Count() > 0);
+            Assert.IsTrue(context.Addresses.Count() > 0);
+            Assert.IsTrue(context.Suburbs.Count() > 0);
+            Assert.IsTrue(context.Cities.Count() > 0);
+            Assert.IsTrue(context.States.Count() > 0);
+            Assert.IsTrue(context.Countries.Count() > 0);
 
             int fleetCount = 0;
-            Dictionary<Ent.MotorVehicleModel, int> dictModelCount = new Dictionary<Ent.MotorVehicleModel, int>();
-            foreach (var location in context.Locations)
+            Dictionary<Guid, int> dictModelCount = new Dictionary<Guid, int>();
+            foreach (var location in context.Locations.ToList())
             {
-                fleetCount += location.Fleet.Count;
+                fleetCount += location.Fleet.Count();
 
-                var FleetGroupByModels =
-                    location.Fleet.GroupBy(x => x.MotorVehicleModel);
+                var gByModel_Fleet =
+                    location.Fleet.GroupBy(x => x.MotorVehicleModel).ToList();
 
-                foreach (var FleetOfThisModel in FleetGroupByModels)
+                foreach (var fleetForModel in gByModel_Fleet)
                 {
-                    int existingCount = dictModelCount.ContainsKey(FleetOfThisModel.Key) ? dictModelCount[FleetOfThisModel.Key] : 0;
-                    existingCount += FleetOfThisModel.Count();
+                    if (dictModelCount.ContainsKey(fleetForModel.Key.MotorVehicleModelId))
+                    {
+                        int existingCount =
+                            dictModelCount[fleetForModel.Key.MotorVehicleModelId] + fleetForModel.Count();
+                        dictModelCount[fleetForModel.Key.MotorVehicleModelId] = existingCount;
+                    }
+                    else
+                    {
+                        dictModelCount[fleetForModel.Key.MotorVehicleModelId] = fleetForModel.Count();
+                    }
                 }
             }
 
-            var MotorVehiclesGroupByModels =
-                context.MotorVehicles.GroupBy(x => x.MotorVehicleModel);
+            var gByModel_Vehicles =
+                context.MotorVehicles.GroupBy(x => x.MotorVehicleModel).ToList();
 
-            foreach (var MotorVehiclesOfThisModel in MotorVehiclesGroupByModels)
+            foreach (var vehiclesForModel in gByModel_Vehicles)
             {
-                int existingCount = dictModelCount.ContainsKey(MotorVehiclesOfThisModel.Key) ? dictModelCount[MotorVehiclesOfThisModel.Key] : int.MinValue;
+                int existingCount = dictModelCount.ContainsKey(vehiclesForModel.Key.MotorVehicleModelId) ? dictModelCount[vehiclesForModel.Key.MotorVehicleModelId] : int.MinValue;
                 Assert.AreNotEqual(existingCount, int.MinValue);
-                Assert.AreEqual(existingCount, MotorVehiclesOfThisModel.Count());
+                Assert.AreEqual(existingCount, vehiclesForModel.Count());
             }
-        }
-
-        [TestMethod]
-        public void TestChangingVehicleMake()
-        {
-            var vehMakes =
-                context.VehicleMakes.ToList();
-
-            Assert.IsTrue(vehMakes.Count(x => x.Name.StartsWith("Star")) > 0);
-            Assert.IsTrue(vehMakes.Count(x => x.Name.StartsWith("Global")) > 0);
-
-            //var vehMakeStarAuto = vehMakes.First(x => x.Name.StartsWith("Star"));
-            //var vehMakeGlobalVehicle = vehMakes.First(x => x.Name.StartsWith("Global"));
-
-            //var modelStarAuto =
-            //    context
-            //    .MotorVehicleModels
-            //    .FirstOrDefault(x => x.VehicleMakeId == vehMakeStarAuto.VehicleMakeId);
-
-            //Assert.IsNotNull(modelStarAuto);
-
-            //var modelGlobalVehicle =
-            //    context
-            //    .MotorVehicleModels
-            //    .FirstOrDefault(x => x.VehicleMakeId == vehMakeGlobalVehicle.VehicleMakeId);
-
-            //Assert.IsNotNull(modelGlobalVehicle);
-
-            //modelStarAuto.VehicleMake = modelGlobalVehicle.VehicleMake;
-
-            //Assert.AreEqual(modelStarAuto.VehicleMakeId, modelGlobalVehicle.VehicleMakeId);
         }
     }
 }

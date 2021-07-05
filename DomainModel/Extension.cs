@@ -48,13 +48,6 @@ namespace DomainModel.Extensions
             else
             {
                 entry.State = System.Data.Entity.EntityState.Modified;
-
-#if DEBUG
-                if (entity is Entities.MotorVehicleModel)
-                {
-                    var memberEntry = entry.Member("VehicleMake");
-                }
-#endif
             }
         }
     }

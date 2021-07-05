@@ -83,7 +83,7 @@ namespace DomainModel.Entities
         {
             get
             {
-                if (MotorVehicleModel.MotorVehicleType != MotorVehicleType.Pickup)
+                if (MotorVehicleModel != null && MotorVehicleModel.MotorVehicleType != MotorVehicleType.Pickup)
                 {
                     _PickupCargoAccessoryType = PickupCargoAccessoryType.None;
                 }
@@ -92,7 +92,7 @@ namespace DomainModel.Entities
             }
             set
             {
-                if (MotorVehicleModel.MotorVehicleType == MotorVehicleType.Pickup)
+                if (MotorVehicleModel == null || MotorVehicleModel.MotorVehicleType == MotorVehicleType.Pickup)
                 {
                     _PickupCargoAccessoryType = value;
                 }
