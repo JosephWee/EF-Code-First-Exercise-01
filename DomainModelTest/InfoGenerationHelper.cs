@@ -29,7 +29,7 @@ namespace DomainModelTest
             regionNames = GenericListHelper.ToQueue(listRegionNames, true);
         }
 
-        public static string GenerateStateName(List<string> existingStateNames = null)
+        public static string GenerateStateName(ICollection<string> existingStateNames = null)
         {
             if (existingStateNames == null)
                 existingStateNames = new List<string>();
@@ -69,7 +69,7 @@ namespace DomainModelTest
             return stateName;
         }
 
-        public static string GenerateCityName(List<string> existingCityNames = null)
+        public static string GenerateCityName(ICollection<string> existingCityNames = null)
         {
             if (existingCityNames == null)
                 existingCityNames = new List<string>();
@@ -91,7 +91,7 @@ namespace DomainModelTest
             return cityName;
         }
 
-        public static string GenerateSuburbName(List<string> existingSuburbNames = null)
+        public static string GenerateSuburbName(ICollection<string> existingSuburbNames = null)
         {
             if (existingSuburbNames == null)
                 existingSuburbNames = new List<string>();
@@ -113,7 +113,7 @@ namespace DomainModelTest
             return suburbName;
         }
 
-        public static string GenerateStreetName(List<string> existingStreetNames = null)
+        public static string GenerateStreetName(ICollection<string> existingStreetNames = null)
         {
             if (existingStreetNames == null)
                 existingStreetNames = new List<string>();
@@ -135,7 +135,7 @@ namespace DomainModelTest
             return streetName;
         }
 
-        public static string GenerateVIN(List<string> existingVINs = null)
+        public static string GenerateVIN(ICollection<string> existingVINs = null)
         {
             if (existingVINs == null)
                 existingVINs = new List<string>();
@@ -167,7 +167,7 @@ namespace DomainModelTest
             return VIN;
         }
 
-        public static string GenerateVehicleRegistration(List<string> existingVehicleRegistrations = null)
+        public static string GenerateVehicleRegistration(ICollection<string> existingVehicleRegistrations = null)
         {
             if (existingVehicleRegistrations == null)
                 existingVehicleRegistrations = new List<string>();
@@ -190,6 +190,30 @@ namespace DomainModelTest
                 existingVehicleRegistrations.Add(RegistrationNumber);
 
             return RegistrationNumber;
+        }
+
+        public static int GenerateInteger(int min, int max)
+        {
+            return rand.Next(min, max);
+        }
+
+        public static List<int> GenerateIntegerList(int min, int max, int count)
+        {
+            List<int> results = new List<int>();
+            
+            for (int i = 0; i < count; i++)
+            {
+                results.Add(
+                    rand.Next(min, max)
+                );
+            }
+
+            return results;
+        }
+
+        public static bool GenerateBoolean()
+        {
+            return (rand.Next(1, 100) >= 50);
         }
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using DomainModel;
 using Ent = DomainModel.Entities;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace DomainModelTest
 {
@@ -19,13 +20,8 @@ namespace DomainModelTest
         {
         }
 
-        [TestMethod]
-        [TestCategory("EF6 - Basic")]
-        [TestCategory("EF6 - Disconnected Scenario")]
-        public void EmptyDB()
+        protected void AssertDatabaseHasData(VehicleRentalContext context)
         {
-            var context = new VehicleRentalContext();
-
             Assert.IsTrue(context.MotorVehicles.Count() > 0);
             Assert.IsTrue(context.MotorVehicleModels.Count() > 0);
             Assert.IsTrue(context.VehicleMakes.Count() > 0);
@@ -36,9 +32,10 @@ namespace DomainModelTest
             Assert.IsTrue(context.Cities.Count() > 0);
             Assert.IsTrue(context.States.Count() > 0);
             Assert.IsTrue(context.Countries.Count() > 0);
-            
-            VehicleRentalContextHelper.EmptyDatabase(log);
+        }
 
+        protected void AssertDatabaseIsEmpty(VehicleRentalContext context)
+        {
             Assert.IsTrue(context.MotorVehicles.Count() == 0);
             Assert.IsTrue(context.MotorVehicleModels.Count() == 0);
             Assert.IsTrue(context.VehicleMakes.Count() == 0);
@@ -52,35 +49,34 @@ namespace DomainModelTest
         }
 
         [TestMethod]
-        [TestCategory("EF6 - Basic")]
-        [TestCategory("EF6 - Disconnected Scenario")]
+        [TestCategory("EF6 -  Integrated Ops")]
+        public void EmptyDB()
+        {
+            var context = new VehicleRentalContext();
+            context.Database.Log = msg => log.Debug(msg);
+
+            AssertDatabaseHasData(context);
+            
+            VehicleRentalContextHelper.EmptyDatabase(context);
+
+            AssertDatabaseIsEmpty(context);
+        }
+
+        [TestMethod]
+        [TestCategory("EF6 -  Integrated Ops")]
         public void PopulateDB()
         {
             var context = new VehicleRentalContext();
+            context.Database.Log = msg => log.Debug(msg);
 
-            Assert.IsTrue(context.MotorVehicles.Count() == 0);
-            Assert.IsTrue(context.MotorVehicleModels.Count() == 0);
-            Assert.IsTrue(context.VehicleMakes.Count() == 0);
+            var queryContext = new VehicleRentalContext();
+            queryContext.Database.Log = msg => log.Debug(msg);
 
-            Assert.IsTrue(context.Locations.Count() == 0);
-            Assert.IsTrue(context.Addresses.Count() == 0);
-            Assert.IsTrue(context.Suburbs.Count() == 0);
-            Assert.IsTrue(context.Cities.Count() == 0);
-            Assert.IsTrue(context.States.Count() == 0);
-            Assert.IsTrue(context.Countries.Count() == 0);
+            AssertDatabaseIsEmpty(context);
 
-            VehicleRentalContextHelper.PopulateDatabase(log);
+            VehicleRentalContextHelper.PopulateDatabase(context, queryContext);
 
-            Assert.IsTrue(context.MotorVehicles.Count() > 0);
-            Assert.IsTrue(context.MotorVehicleModels.Count() > 0);
-            Assert.IsTrue(context.VehicleMakes.Count() > 0);
-
-            Assert.IsTrue(context.Locations.Count() > 0);
-            Assert.IsTrue(context.Addresses.Count() > 0);
-            Assert.IsTrue(context.Suburbs.Count() > 0);
-            Assert.IsTrue(context.Cities.Count() > 0);
-            Assert.IsTrue(context.States.Count() > 0);
-            Assert.IsTrue(context.Countries.Count() > 0);
+            AssertDatabaseHasData(context);
 
             int fleetCount = 0;
             Dictionary<Guid, int> dictModelCount = new Dictionary<Guid, int>();
@@ -198,7 +194,7 @@ namespace DomainModelTest
         }
 
         [TestMethod]
-        [TestCategory("EF6 - Connected Scenario")]
+        [TestCategory("EF6 -  Integrated Ops")]
         [TestCategory("EF6 - Delete")]
         [TestCategory("EF6 - Cascade Set Null")]
         [TestCategory("EF6 - Cascade Delete")]
@@ -250,6 +246,99 @@ namespace DomainModelTest
             Assert.IsTrue(context.Cities.Count() == 0);
             Assert.IsTrue(context.States.Count() == 0);
             Assert.IsTrue(context.Countries.Count() == 0);
+        }
+
+        [TestMethod]
+        [TestCategory("EF6 - Connected Scenario")]
+        [TestCategory("EF6 - Add")]
+        public void AddLocation()
+        {
+            var context = new VehicleRentalContext();
+
+            AssertDatabaseHasData(context);
+
+            var existingAddrs =
+                context.Addresses.ToList();
+
+            var existingLocations =
+                context.Locations.ToList();
+
+            List<Tuple<int, string, Ent.Address>> existingAddrParts =
+                new List<Tuple<int, string, Ent.Address>>();
+
+            foreach (var addr in existingAddrs)
+            {
+                int streetNumber = int.MinValue;
+                string streetName = string.Empty;
+
+                Regex regex = new Regex(@"^(\d+)\s+(\D+)$", RegexOptions.IgnoreCase);
+                Match m = regex.Match(addr.AddressLine1.Trim());
+                if (m.Success && m.Groups.Count > 2)
+                {
+                    streetNumber = int.Parse(m.Groups[1].Value);
+                    streetName = m.Groups[2].Value;
+                }
+
+                Tuple<int, string, Ent.Address> tup =
+                    new Tuple<int, string, Ent.Address>(
+                        streetNumber,
+                        streetName,
+                        addr);
+
+                existingAddrParts.Add(tup);
+            }
+
+            var existingAddr = existingAddrParts.First();
+
+            int newStreetNumber = int.MinValue;
+            do
+            {
+                newStreetNumber = InfoGenerationHelper.GenerateInteger(1, 30);
+            } while (newStreetNumber == existingAddr.Item1);
+
+            string partialPostalCode =
+                existingAddr.Item3.PostalCode
+                .Substring(
+                    0,
+                    existingAddr.Item3.PostalCode.Length - 2
+                );
+
+            Ent.Address newAddress =
+                new Ent.Address()
+                {
+                    AddressId = Guid.NewGuid(),
+                    AddressLine1 =
+                        newStreetNumber + " " + existingAddr.Item2,
+                    SuburbId = existingAddr.Item3.SuburbId,
+                    PostalCode =
+                        string.Format(
+                            "{0}{1:00}",
+                            partialPostalCode,
+                            newStreetNumber)
+                };
+
+            context.Addresses.Add(newAddress);
+
+            Ent.Location newLocation = new Ent.Location()
+            {
+                LocationId = Guid.NewGuid(),
+                AddressId = newAddress.AddressId,
+                ParkingCapacity = 15 + InfoGenerationHelper.GenerateInteger(5, 20)
+            };
+
+            context.Locations.Add(newLocation);
+
+            context.SaveChanges();
+
+            var addedAddr =
+                context.Addresses.FirstOrDefault(addr => addr.AddressId == newAddress.AddressId);
+
+            var addedLocation =
+                context.Locations.FirstOrDefault(loc => loc.LocationId == newLocation.LocationId);
+
+            Assert.IsNotNull(addedAddr);
+            Assert.IsNotNull(addedLocation);
+            Assert.AreEqual(addedAddr.AddressId, addedLocation.AddressId);
         }
     }
 }

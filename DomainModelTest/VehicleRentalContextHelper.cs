@@ -12,19 +12,13 @@ namespace DomainModelTest
 {
     public class VehicleRentalContextHelper
     {
-        private static Random rand = new Random();
-
-        public static void EmptyDatabase(log4net.ILog log = null)
+        public static void EmptyDatabase(DomainModel.VehicleRentalContext context)
         {
             //We need to clear Tables for Entities that are
             //randomly generated:
             //MotorVehicles, MotorVehicleModels, VehicleMakes,
             //Locations, Addresses, Suburbs, Cities, States,
             //Countries...
-
-            var context = new DomainModel.VehicleRentalContext();
-            if (log != null)
-                context.Database.Log = msg => log.Debug(msg);
 
             context.MotorVehicles.RemoveRange(
                 context.MotorVehicles.ToList()
@@ -65,13 +59,8 @@ namespace DomainModelTest
             context.SaveChanges();
         }
 
-        public static void PopulateDatabase(log4net.ILog log = null)
+        public static void PopulateDatabase(DomainModel.VehicleRentalContext context, DomainModel.VehicleRentalContext contextQuery)
         {
-            DomainModel.VehicleRentalContext contextQuery = new DomainModel.VehicleRentalContext();
-            DomainModel.VehicleRentalContext context = new DomainModel.VehicleRentalContext();
-            if (log != null)
-                context.Database.Log = msg => log.Debug(msg);
-
             List<Ent.VehicleMake> vehicleMakes = new List<Ent.VehicleMake>();
             List<Ent.MotorVehicleModel> vehicleModels = new List<Ent.MotorVehicleModel>();
 
@@ -532,9 +521,9 @@ namespace DomainModelTest
 
                     for (int b = 0; b < suburbCount; b++)
                     {
-                        int streetNumber = rand.Next(1, 30);
-                        int parkingCapacity = 15 + rand.Next(5, 20);
-                        string postalcode = $"{c:0}{st:0}{(st + rand.Next(0, 5)):00}{b:00}{streetNumber:00}";
+                        int streetNumber = InfoGenerationHelper.GenerateInteger(1, 30);
+                        int parkingCapacity = 15 + InfoGenerationHelper.GenerateInteger(5, 20);
+                        string postalcode = $"{c:0}{st:0}{(st + InfoGenerationHelper.GenerateInteger(0, 5)):00}{b:00}{streetNumber:00}";
 
                         var suburb =
                             new Ent.Suburb()
@@ -569,13 +558,13 @@ namespace DomainModelTest
                         {
                             Ent.MotorVehicleModel vehModel = qModels.Dequeue();
 
-                            int Year = 2010 + rand.Next(0, 11);
-                            int Mileage = rand.Next(0, 200000);
+                            int Year = 2010 + InfoGenerationHelper.GenerateInteger(0, 11);
+                            int Mileage = InfoGenerationHelper.GenerateInteger(0, 200000);
 
                             Ent.PickupCargoAccessoryType PickupCargoAccessoryType = Ent.PickupCargoAccessoryType.None;
                             if (vehModel.MotorVehicleType == Ent.MotorVehicleType.Pickup)
                             {
-                                int r = rand.Next(1, 100);
+                                int r = InfoGenerationHelper.GenerateInteger(1, 100);
                                 if (r >= 33 && r <= 66)
                                 {
                                     PickupCargoAccessoryType = Ent.PickupCargoAccessoryType.TonneauCover;
@@ -594,13 +583,13 @@ namespace DomainModelTest
                                 VIN = InfoGenerationHelper.GenerateVIN(existingVINs),
                                 Registration = InfoGenerationHelper.GenerateVehicleRegistration(existingVehicleRegistrations),
                                 Mileage = Mileage,
-                                HasNavSystem = rand.Next(1, 100) >= 50,
-                                HasDashCam = rand.Next(1, 100) >= 50,
-                                HasBlindspotMonitoring = rand.Next(1, 100) >= 50,
-                                HasAutomaticEmergencyBrake = rand.Next(1, 100) >= 50,
-                                HasReversingCam = rand.Next(1, 100) >= 50,
-                                HasForwardParkingSensor = rand.Next(1, 100) >= 50,
-                                HasRearParkingSensor = rand.Next(1, 100) >= 50,
+                                HasNavSystem = InfoGenerationHelper.GenerateBoolean(),
+                                HasDashCam = InfoGenerationHelper.GenerateBoolean(),
+                                HasBlindspotMonitoring = InfoGenerationHelper.GenerateBoolean(),
+                                HasAutomaticEmergencyBrake = InfoGenerationHelper.GenerateBoolean(),
+                                HasReversingCam = InfoGenerationHelper.GenerateBoolean(),
+                                HasForwardParkingSensor = InfoGenerationHelper.GenerateBoolean(),
+                                HasRearParkingSensor = InfoGenerationHelper.GenerateBoolean(),
                                 PickupCargoAccessoryType = PickupCargoAccessoryType
                             };
                             vehicles.Add(vehicle);
